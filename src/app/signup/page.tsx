@@ -75,7 +75,7 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, Leaf, TreeDeciduous, Globe, Sparkles } from "lucide-react"
 
@@ -90,9 +90,16 @@ export default function SignupPage() {
   const [password, setPassword] = useState("")
   const [showPopup, setShowPopup] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
 
   const handleSignup = async () => {
+    if (!isSupabaseConfigured || !supabase) {
+      setErrorMsg("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to run authentication.")
+      return
+    }
+
     setIsLoading(true)
+    setErrorMsg("")
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -103,6 +110,8 @@ export default function SignupPage() {
       setTimeout(() => {
         router.push("/signin")
       }, 3000)
+    } else {
+      setErrorMsg(error.message)
     }
     setIsLoading(false)
   }
@@ -158,6 +167,12 @@ export default function SignupPage() {
             <h1 className="text-3xl font-bold text-gray-900">Create your account</h1>
             <p className="text-gray-500 mt-2">Start your journey toward a greener lifestyle today.</p>
           </div>
+
+          {errorMsg && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100">
+              {errorMsg}
+            </div>
+          )}
 
           <div className="space-y-4">
             <div className="space-y-2">

@@ -67,7 +67,7 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { Mail, Lock, Leaf, ArrowRight, ShieldCheck, Zap } from "lucide-react"
 
@@ -83,6 +83,11 @@ export default function SigninPage() {
   const [errorMsg, setErrorMsg] = useState("")
 
   const handleSignin = async () => {
+    if (!isSupabaseConfigured || !supabase) {
+      setErrorMsg("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to run authentication.")
+      return
+    }
+
     setIsLoading(true)
     setErrorMsg("")
     
